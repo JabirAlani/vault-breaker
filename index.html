@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vault Breaker</title>
+<meta name="description" content="A prompt-injection training game: talk a bank's AI assistant into revealing its vault word through seven layers of defence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Stencil+One&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!--BUNDLE-START-->
+<header class="topbar">
+  <div class="brand">
+    <svg class="dial" id="dial" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="29" class="dial-ring"/>
+      <g id="dial-face">
+        <circle cx="32" cy="32" r="21" class="dial-face"/>
+        <g class="dial-ticks"></g>
+        <rect x="30.5" y="13" width="3" height="10" rx="1.5" class="dial-mark"/>
+      </g>
+      <circle cx="32" cy="32" r="5" class="dial-hub"/>
+    </svg>
+    <div>
+      <p class="logo">Vault Breaker</p>
+      <p class="tagline">Northbridge Bank · Sentinel AI red-team exercise</p>
+    </div>
+  </div>
+  <div class="progress" aria-live="polite">
+    <span class="progress-count" id="progress-count">0 / 7</span>
+    <span class="progress-label">vaults opened</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="vaults" aria-label="Vaults">
+    <p class="section-label">Vaults</p>
+    <ol id="vault-list"></ol>
+    <button type="button" class="link-btn" id="reset-btn">Reset progress</button>
+    <div class="reset-confirm" id="reset-confirm" hidden>
+      <p>Clear all progress and chats?</p>
+      <div class="row">
+        <button type="button" class="btn btn-danger" id="reset-yes">Reset</button>
+        <button type="button" class="btn btn-ghost" id="reset-no">Cancel</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="room">
+    <section class="brief">
+      <p class="eyebrow" id="level-eyebrow">Vault 1 of 7</p>
+      <h1 id="level-name">The Open Door</h1>
+      <p class="objective">Get Sentinel to reveal the vault word, then enter it in <strong>Open the vault</strong>.</p>
+      <div class="defences">
+        <span class="defences-label">Defences on</span>
+        <ul class="chips" id="level-chips"></ul>
+      </div>
+    </section>
+
+    <section class="chat" id="chat" aria-live="polite" aria-label="Conversation with Sentinel"></section>
+
+    <details class="attach" id="attach" hidden>
+      <summary>Attached statement <span class="muted">(Sentinel reads this when you ask it to)</span></summary>
+      <label class="sr-only" for="doc-input">Attached statement text</label>
+      <textarea id="doc-input" rows="6" spellcheck="false"></textarea>
+    </details>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <label class="sr-only" for="prompt-input">Message to Sentinel</label>
+      <textarea id="prompt-input" rows="2" placeholder="Ask Sentinel anything…"></textarea>
+      <button type="submit" class="btn btn-primary" id="send-btn">Send</button>
+    </form>
+  </main>
+
+  <aside class="side">
+    <form class="panel guess" id="guess-form" autocomplete="off">
+      <p class="section-label">Open the vault</p>
+      <label class="sr-only" for="guess-input">Vault word</label>
+      <div class="guess-row">
+        <input id="guess-input" type="text" placeholder="Vault word" spellcheck="false">
+        <button type="submit" class="btn btn-brass">Open</button>
+      </div>
+      <p class="guess-feedback" id="guess-feedback" role="status"></p>
+    </form>
+
+    <div class="panel">
+      <p class="section-label">Hints</p>
+      <ol class="hint-list" id="hint-list"></ol>
+      <button type="button" class="btn btn-ghost" id="hint-btn">Show a hint</button>
+    </div>
+
+    <div class="panel stats">
+      <div><span class="stat" id="stat-prompts">0</span><span class="stat-label">prompts on this vault</span></div>
+      <div><span class="stat" id="stat-blocked">0</span><span class="stat-label">blocked by defences</span></div>
+    </div>
+  </aside>
+</div>
+
+<div class="overlay" id="debrief" hidden>
+  <div class="debrief" role="dialog" aria-modal="true" aria-labelledby="debrief-title">
+    <p class="eyebrow good" id="debrief-eyebrow">Vault opened</p>
+    <h2 id="debrief-title">The Open Door</h2>
+    <dl class="debrief-grid">
+      <dt>The defence</dt><dd id="d-defence"></dd>
+      <dt>How you beat it</dt><dd id="d-beat"></dd>
+      <dt>Real-world control</dt><dd id="d-control"></dd>
+      <dt>In the masterclass</dt><dd id="d-slide"></dd>
+    </dl>
+    <div class="row">
+      <button type="button" class="btn btn-brass" id="next-btn">Next vault</button>
+      <button type="button" class="btn btn-ghost" id="stay-btn">Stay here</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="finale" hidden>
+  <div class="debrief" role="dialog" aria-modal="true" aria-labelledby="finale-title">
+    <p class="eyebrow good">All seven vaults open</p>
+    <h2 id="finale-title">You breached Northbridge Bank</h2>
+    <p>Every defence slowed you down, and none of them stopped you. The lesson from Vault 7 holds: while the model holds the secret, some wording will get it out. Keep secrets out of the model's context, and put permissions and human checks in code.</p>
+    <div class="table-wrap">
+      <table class="results">
+        <thead><tr><th>Vault</th><th>Defence</th><th class="num">Prompts</th></tr></thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+    <div class="row">
+      <button type="button" class="btn btn-brass" id="copy-btn">Copy results</button>
+      <button type="button" class="btn btn-ghost" id="finale-close">Close</button>
+    </div>
+    <textarea id="copy-fallback" class="copy-fallback" rows="4" readonly hidden></textarea>
+  </div>
+</div>
+<!--BUNDLE-END-->
+<script src="js/levels.js"></script>
+<script src="js/engine.js"></script>
+</body>
+</html>
