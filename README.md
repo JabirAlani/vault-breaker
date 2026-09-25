@@ -1,6 +1,6 @@
 # Vault Breaker
 
-**A prompt-injection training game for the AI Guardianship masterclass.**
+**A prompt-injection training game.**
 
 Players try to talk *Sentinel*, the AI assistant of the fictional Northbridge Bank, into revealing a secret vault word. Each of the seven vaults adds another real-world defence. Each time a player opens a vault, they see what the defence was, how they got past it, and which control would stop the attack in a real bank.
 
@@ -116,7 +116,6 @@ The vault words sit in the browser's code, lightly hidden but easy to decode. Th
 
 ## Related material
 
-- AI Guardianship masterclass deck and presenter script
 - [MITRE ATLAS](https://atlas.mitre.org/): adversarial threats to AI systems
 - [OWASP Top 10 for LLM Applications](https://genai.owasp.org/)
 - [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
